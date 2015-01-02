@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Cherry Collect Benchmark</string>
+    <string name="defaultText">go to the menu and select a fucking benchmark!</string>
+    <string name="filterToArrayListLabel">filter to ArrayList</string>
+    <string name="filterAndTransformToArrayListLabel">filter and transform to ArrayList</string>
+
+</resources>
