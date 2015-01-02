@@ -102,8 +102,9 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onNext(final Output output) {
+                final String lineSeparator = System.getProperty("line.separator");
                 final String formattedOutput = output.getSortedTags() +
-                                               System.lineSeparator() +
+                                               lineSeparator +
                                                String.format("runs: %s, min: %s, max: %s, avg: %s",
                                                              output.getRunTimes().size(),
                                                              format(output.fastestRunTime(NANOSECONDS)),
@@ -111,9 +112,9 @@ public class MainActivity extends ActionBarActivity {
                                                              format(output.averageRepetitionTime(NANOSECONDS)));
                 final String newLine;
                 if (counter % 2 == 0) {
-                    newLine = Strings.repeat(System.lineSeparator(), 2);
+                    newLine = Strings.repeat(lineSeparator, 2);
                 } else {
-                    newLine = System.lineSeparator();
+                    newLine = lineSeparator;
                 }
 
                 textView.setText(formattedOutput + newLine + textView.getText());
