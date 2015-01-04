@@ -16,8 +16,10 @@ import de.codereligion.cherry.benchmark.InputFactory;
 import de.codereligion.cherry.benchmark.Output;
 import de.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
 import de.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import rx.Subscriber;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static rx.android.observables.AndroidObservable.bindActivity;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
@@ -102,10 +104,11 @@ public class MainActivity extends ActionBarActivity {
             public void onNext(final Output output) {
                 final String formattedOutput = output.getSortedTags() +
                                                System.lineSeparator() +
-                                               String.format("min: %s, max: %s, avg: %s",
-                                                             output.fastestRunTime(MICROSECONDS),
-                                                             output.slowestRunTime(MICROSECONDS),
-                                                             output.averageRepetitionTime(MICROSECONDS));
+                                               String.format("runs: %s, min: %s, max: %s, avg: %s",
+                                                             output.getRunTimes().size(),
+                                                             format(output.fastestRunTime(NANOSECONDS)),
+                                                             format(output.slowestRunTime(NANOSECONDS)),
+                                                             format(output.averageRepetitionTime(NANOSECONDS)));
                 final String newLine;
                 if (counter % 2 == 0) {
                     newLine = Strings.repeat(System.lineSeparator(), 2);
@@ -118,5 +121,13 @@ public class MainActivity extends ActionBarActivity {
                 counter++;
             }
         });
+    }
+
+    private String format(final long time) {
+        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+        decimalFormatSymbols.setGroupingSeparator(":".charAt(0));
+        final DecimalFormat decimalFormat = new DecimalFormat();
+        decimalFormat.setDecimalFormatSymbols(decimalFormatSymbols);
+        return decimalFormat.format(time);
     }
 }
