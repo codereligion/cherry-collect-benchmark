@@ -15,22 +15,20 @@
  */
 package com.codereligion.cherry.benchmark.collect;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.codereligion.cherry.benchmark.Contestant;
 import com.codereligion.cherry.benchmark.Input;
 import com.codereligion.cherry.collect.ArrayLists;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import rx.Observable;
 import rx.Subscriber;
 
 public class ListFilteringBenchmarkInputFactory {
 
-    private static final int REPETITIONS = 10;
+    private static final long REPETITIONS = 40;
     private static final Predicate<Long> IS_EVEN = new Predicate<Long>() {
         @Override
         public boolean apply(final Long input) {
@@ -44,7 +42,7 @@ public class ListFilteringBenchmarkInputFactory {
             @Override
             public void call(final Subscriber<? super Input> subscriber) {
 
-                final int powers = 18;
+                final int powers = 20;
                 for (int p = 1; p <= powers; p++) {
 
                     if (subscriber.isUnsubscribed()) {
@@ -55,8 +53,11 @@ public class ListFilteringBenchmarkInputFactory {
                     final List<Long> iterable = createLongsUntil(numElements);
 
                     if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(new ArrayListsInput(iterable));
-                        subscriber.onNext(new FluentIterableInput(iterable));
+                        subscriber.onNext(new Input().withOperation("filter")
+                                                     .withNumElements(numElements)
+                                                     .withRepetitions(REPETITIONS)
+                                                     .withCherryContestant(new ArrayListsInput(iterable))
+                                                     .withGuavaContestant(new FluentIterableInput(iterable)));
                     }
                 }
 
@@ -77,7 +78,7 @@ public class ListFilteringBenchmarkInputFactory {
         return list;
     }
 
-    private static class ArrayListsInput implements Input {
+    private static class ArrayListsInput implements Contestant {
 
         private final Iterable<Long> iterable;
 
@@ -86,13 +87,8 @@ public class ListFilteringBenchmarkInputFactory {
         }
 
         @Override
-        public Set<String> getTags() {
-            return Sets.newHashSet("filter", "Cherry-Collect", "elements: " + Iterables.size(iterable));
-        }
-
-        @Override
-        public long getRepetitions() {
-            return REPETITIONS;
+        public String getName() {
+            return "Cherry-Collect";
         }
 
         @Override
@@ -101,7 +97,7 @@ public class ListFilteringBenchmarkInputFactory {
         }
     }
 
-    private static class FluentIterableInput implements Input {
+    private static class FluentIterableInput implements Contestant {
 
         private final List<Long> iterable;
 
@@ -110,13 +106,8 @@ public class ListFilteringBenchmarkInputFactory {
         }
 
         @Override
-        public Set<String> getTags() {
-            return Sets.newHashSet("filter", "FluentIterable", "elements: " + Iterables.size(iterable));
-        }
-
-        @Override
-        public long getRepetitions() {
-            return REPETITIONS;
+        public String getName() {
+            return "FluentIterable";
         }
 
         @Override

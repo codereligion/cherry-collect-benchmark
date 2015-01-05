@@ -13,4 +13,10 @@
             android:orderInCategory="100"
             app:showAsAction="never"
             android:title="@string/filterAndTransformToArrayListLabel"/>
+
+    <item
+            android:id="@+id/shareResults"
+            android:orderInCategory="100"
+            app:showAsAction="never"
+            android:title="@string/shareResults"/>
 </menu>

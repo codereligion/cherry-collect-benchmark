@@ -15,57 +15,56 @@
  */
 package com.codereligion.cherry.benchmark;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-
 public class Output {
 
-    private List<Long> runTimes = Lists.newArrayList();
-    private Set<String> tags = Sets.newHashSet();
+    public static Output from(final Input input) {
+        return new Output().withOperation(input.getOperation()).withNumElements(input.getNumElements());
+    }
 
-    Output addRunTime(final long runTimeInNanos) {
-        this.runTimes.add(runTimeInNanos);
+    private long numElements;
+    private String operation;
+    private ContestantResult guavaContestant;
+    private ContestantResult cherryContestant;
+
+    Output() {
+        // disallow public instantiation
+    }
+
+    Output withGuavaContestant(final ContestantResult contestantResult) {
+        this.guavaContestant = contestantResult;
         return this;
     }
 
-    Output withTags(final Set<String> tags) {
-        this.tags = tags;
+    Output withCherryContestant(final ContestantResult contestantResult) {
+        this.cherryContestant = contestantResult;
         return this;
     }
 
-    public Set<String> getTags() {
-        return tags;
+
+    Output withOperation(final String operation) {
+        this.operation = operation;
+        return this;
     }
 
-    public List<Long> getRunTimes() {
-        return runTimes;
+    Output withNumElements(final long numElements) {
+        this.numElements = numElements;
+        return this;
     }
 
-    public long fastestRunTime(final TimeUnit timeUnit) {
-        return timeUnit.convert(Collections.min(runTimes), TimeUnit.NANOSECONDS);
+    public ContestantResult getCherryResult() {
+        return cherryContestant;
     }
 
-    public long slowestRunTime(final TimeUnit timeUnit) {
-        return timeUnit.convert(Collections.max(runTimes), TimeUnit.NANOSECONDS);
+    public ContestantResult getGuavaResult() {
+        return guavaContestant;
     }
 
-    public long averageRepetitionTime(final TimeUnit timeUnit) {
-
-        long sum = 0;
-        for (final Long runTime : runTimes) {
-           sum += runTime;
-        }
-
-        return timeUnit.convert(sum / runTimes.size(), TimeUnit.NANOSECONDS);
+    public String getOperation() {
+        return operation;
     }
 
-    public SortedSet<String> getSortedTags() {
-        return new TreeSet<String>(tags);
+    public long getNumElements() {
+        return numElements;
     }
+
 }

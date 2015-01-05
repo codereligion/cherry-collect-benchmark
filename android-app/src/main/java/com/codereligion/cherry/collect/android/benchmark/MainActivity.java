@@ -1,5 +1,6 @@
 package com.codereligion.cherry.collect.android.benchmark;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,17 +10,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import com.codereligion.cherry.benchmark.Input;
 import com.codereligion.cherry.benchmark.Output;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Func1;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMark;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.warmUp;
 import static com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory.createListFilteringAndTransformingBenchmarkInput;
 import static com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory.createListFilteringBenchmarkInput;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
 
@@ -28,10 +25,10 @@ public class MainActivity extends ActionBarActivity {
 
     private ProgressBar progressBar;
     private ResultListFragment resultListFragment;
-    private Observable.Operator<String, String> progressObserver = new Observable.Operator<String, String>() {
+    private Observable.Operator<Output, Output> progressObserver = new Observable.Operator<Output, Output>() {
         @Override
-        public Subscriber<? super String> call(final Subscriber<? super String> subscriber) {
-            return new Subscriber<String>() {
+        public Subscriber<? super Output> call(final Subscriber<? super Output> subscriber) {
+            return new Subscriber<Output>() {
 
                 @Override
                 public void onStart() {
@@ -53,15 +50,15 @@ public class MainActivity extends ActionBarActivity {
                 }
 
                 @Override
-                public void onNext(final String input) {
-                    subscriber.onNext(input);
+                public void onNext(final Output output) {
+                    subscriber.onNext(output);
                 }
             };
         }
     };
 
     private Subscription subscription;
-    private Observable<String> observable;
+    private Observable<Output> observable;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -91,12 +88,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public Observable<String> getLastCustomNonConfigurationInstance() {
-        return (Observable<String>) super.getLastCustomNonConfigurationInstance();
+    public Observable<Output> getLastCustomNonConfigurationInstance() {
+        return (Observable<Output>) super.getLastCustomNonConfigurationInstance();
     }
 
     @Override
-    public Observable<String> onRetainCustomNonConfigurationInstance() {
+    public Observable<Output> onRetainCustomNonConfigurationInstance() {
         return observable;
     }
 
@@ -122,6 +119,14 @@ public class MainActivity extends ActionBarActivity {
                 inputObservable = createListFilteringAndTransformingBenchmarkInput();
                 break;
             }
+            case R.id.shareResults: {
+                final Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, resultListFragment.getResultsAsCsv());
+                sendIntent.setType("text/csv");
+                startActivity(sendIntent);
+                return true;
+            }
             default: {
                 throw new IllegalArgumentException("Item with id: " + item.getItemId() + " not supported.");
             }
@@ -130,37 +135,11 @@ public class MainActivity extends ActionBarActivity {
         observable = inputObservable.subscribeOn(newThread())
                                                        .concatMap(warmUp())
                                                        .concatMap(benchMark())
-                                                       .concatMap(formatToString())
                                                        .observeOn(mainThread())
                                                        .lift(progressObserver);
 
         subscription = resultListFragment.outputResults(observable).subscribe();
 
         return true;
-    }
-
-    private Func1<Output, Observable<String>> formatToString() {
-        return new Func1<Output, Observable<String>>() {
-
-            @Override
-            public Observable<String> call(final Output output) {
-                final String formattedOutput = output.getSortedTags() +
-                                               String.format("runs: %s, min: %s, max: %s, avg: %s",
-                                                             output.getRunTimes().size(),
-                                                             format(output.fastestRunTime(NANOSECONDS)),
-                                                             format(output.slowestRunTime(NANOSECONDS)),
-                                                             format(output.averageRepetitionTime(NANOSECONDS)));
-
-                return Observable.just(formattedOutput);
-            }
-        };
-    }
-
-    private String format(final long time) {
-        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
-        decimalFormatSymbols.setGroupingSeparator(":".charAt(0));
-        final DecimalFormat decimalFormat = new DecimalFormat();
-        decimalFormat.setDecimalFormatSymbols(decimalFormatSymbols);
-        return decimalFormat.format(time);
     }
 }

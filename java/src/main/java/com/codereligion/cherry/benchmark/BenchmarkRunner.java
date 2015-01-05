@@ -30,7 +30,8 @@ public class BenchmarkRunner {
             @Override
             public Observable<Input> call(final Input input) {
                 if (!executed) {
-                    System.out.println("warmUp check int:" + input.run());
+                    System.out.println("warmUp check int cherry contestant:" + input.getCherryResult().run());
+                    System.out.println("warmUp check int guava contestant:" + input.getGuavaResult().run());
                     executed = true;
                 }
                 return Observable.just(input);
@@ -42,23 +43,34 @@ public class BenchmarkRunner {
         return new Func1<Input, Observable<Output>>() {
             @Override
             public Observable<Output> call(final Input input) {
+                final Output output = Output.from(input);
+
+                output.withGuavaContestant(benchMark(input.getRepetitions(), input.getGuavaResult()));
+                output.withCherryContestant(benchMark(input.getRepetitions(), input.getCherryResult()));
+
+                return Observable.just(output);
+            }
+
+            private ContestantResult benchMark(final long repetitions, final Contestant contestant) {
+
                 int checkInt = 0;
-
                 final Stopwatch stopwatch = Stopwatch.createUnstarted();
-                final Output output = new Output().withTags(input.getTags());
+                final ContestantResult contestantResult = ContestantResult.from(contestant);
 
-                for (long reps = 0; reps < input.getRepetitions(); reps++) {
+                for (long reps = 0; reps < repetitions; reps++) {
 
+                    System.gc();
                     stopwatch.start();
-                    checkInt |= input.run();
+                    checkInt |= contestant.run();
                     stopwatch.stop();
 
                     final long timeInNanos = stopwatch.elapsed(TimeUnit.NANOSECONDS);
-                    output.addRunTime(timeInNanos);
+                    contestantResult.addRunTime(timeInNanos);
                 }
 
-                System.out.println("check int:"  + checkInt);
-                return Observable.just(output);
+                System.out.println("check int:" + checkInt);
+
+                return contestantResult;
             }
         };
     }

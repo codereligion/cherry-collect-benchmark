@@ -15,13 +15,56 @@
  */
 package com.codereligion.cherry.benchmark;
 
-import java.util.Set;
+public class Input {
 
-public interface Input {
+    private Contestant cherryContestant;
+    private Contestant guavaContestant;
+    private String operation;
+    private long numElements;
+    private long repetitions;
 
-    Set<String> getTags();
+    public Input withCherryContestant(final Contestant contestant) {
+        this.cherryContestant = contestant;
+        return this;
+    }
 
-    long getRepetitions();
+    public Input withGuavaContestant(final Contestant contestant) {
+        this.guavaContestant = contestant;
+        return this;
+    }
 
-    int run();
+    public Input withOperation(final String operation) {
+        this.operation = operation;
+        return this;
+    }
+
+    public Input withNumElements(final long numElements) {
+        this.numElements = numElements;
+        return this;
+    }
+
+    public Input withRepetitions(final long tepetitions) {
+        this.repetitions = tepetitions;
+        return this;
+    }
+
+    public Contestant getCherryResult() {
+        return cherryContestant;
+    }
+
+    public Contestant getGuavaResult() {
+        return guavaContestant;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public long getNumElements() {
+        return numElements;
+    }
+
+    public long getRepetitions() {
+        return repetitions;
+    }
 }

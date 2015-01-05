@@ -16,8 +16,6 @@
 package com.codereligion.cherry.collect;
 
 import com.codereligion.cherry.benchmark.Output;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import org.junit.Test;
 import rx.functions.Action1;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMark;
@@ -31,21 +29,12 @@ public class BenchmarkTest {
     private final Action1<Output> printOutput = new Action1<Output>() {
         @Override
         public void call(final Output output) {
-            System.out.printf("%s min: %s, max: %s, avg: %s" + System.getProperty("line.separator"),
-                              output.getSortedTags(),
-                              format(output.fastestRunTime(NANOSECONDS)),
-                              format(output.slowestRunTime(NANOSECONDS)),
-                              format(output.averageRepetitionTime(NANOSECONDS)));
+            final float cherryAvg = output.getCherryResult().averageRepetitionTime(NANOSECONDS);
+            final float guavaAvg = output.getGuavaResult().averageRepetitionTime(NANOSECONDS);
+            final float cherryImprovement = 100 - ((cherryAvg / guavaAvg) * 100);
+            System.out.printf("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryImprovement);
         }
     };
-
-    private String format(final long time) {
-        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
-        decimalFormatSymbols.setGroupingSeparator(":".charAt(0));
-        final DecimalFormat decimalFormat = new DecimalFormat();
-        decimalFormat.setDecimalFormatSymbols(decimalFormatSymbols);
-        return decimalFormat.format(time);
-    }
 
     @Test
     public void benchmarkFilterToArrayList() {
