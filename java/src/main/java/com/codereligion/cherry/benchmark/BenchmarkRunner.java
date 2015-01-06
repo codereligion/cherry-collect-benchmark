@@ -59,13 +59,13 @@ public class BenchmarkRunner {
 
                 for (long reps = 0; reps < repetitions; reps++) {
 
-                    System.gc();
                     stopwatch.start();
                     checkInt |= contestant.run();
                     stopwatch.stop();
 
                     final long timeInNanos = stopwatch.elapsed(TimeUnit.NANOSECONDS);
                     contestantResult.addRunTime(timeInNanos);
+                    stopwatch.reset();
                 }
 
                 System.out.println("check int:" + checkInt);

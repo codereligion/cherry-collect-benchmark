@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.codereligion.cherry.benchmark.ContestantResult;
@@ -17,10 +18,14 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class ResultListFragment extends android.support.v4.app.ListFragment {
 
+    private final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+    private final DecimalFormat decimalFormat = new DecimalFormat();
     private OutputArrayAdapter adapter;
 
     public ResultListFragment() {
         setRetainInstance(true);
+        decimalFormatSymbols.setGroupingSeparator(":".charAt(0));
+        decimalFormat.setDecimalFormatSymbols(decimalFormatSymbols);
     }
 
     @Override
@@ -28,6 +33,28 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
         super.onCreate(savedInstanceState);
         adapter = new OutputArrayAdapter(getActivity(), android.R.layout.simple_list_item_1);
         setListAdapter(adapter);
+    }
+
+    @Override
+    public void onViewCreated(final View view, final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+                final Output output = adapter.getItem(position);
+                outputRunTimes(output.getCherryResult());
+                outputRunTimes(output.getGuavaResult());
+                return true;
+            }
+
+            private void outputRunTimes(final ContestantResult contestantResult) {
+                System.out.println(contestantResult.getName() + " RunTimes:");
+                for (final Long runtTime : contestantResult.getRunTimes()) {
+                    System.out.println(decimalFormat.format(runtTime));
+                }
+            }
+        });
     }
 
     public Observable<Output> outputResults(final Observable<Output> inputObservable) {
@@ -74,9 +101,9 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
 
             stringBuilder.append(output.getNumElements());
             stringBuilder.append(",");
-            stringBuilder.append(cherryResult.averageRepetitionTime(NANOSECONDS));
+            stringBuilder.append(cherryResult.fastestRunTime(NANOSECONDS));
             stringBuilder.append(",");
-            stringBuilder.append(guavaResult.averageRepetitionTime(NANOSECONDS));
+            stringBuilder.append(guavaResult.fastestRunTime(NANOSECONDS));
             stringBuilder.append(getLineSeparator());
         }
         return stringBuilder.toString();
@@ -88,16 +115,12 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
 
     private static class OutputArrayAdapter extends ArrayAdapter<Output> {
 
-        private final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
-        private final DecimalFormat decimalFormat = new DecimalFormat();
         private final LayoutInflater inflater;
         private final int resource;
 
         public OutputArrayAdapter(final Context context, final int resource) {
             super(context, resource);
             this.resource = resource;
-            decimalFormatSymbols.setGroupingSeparator(":".charAt(0));
-            decimalFormat.setDecimalFormatSymbols(decimalFormatSymbols);
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -118,11 +141,11 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
 
         private String format(final Output output) {
 
-            final float cherryAvg = output.getCherryResult().averageRepetitionTime(NANOSECONDS);
-            final float guavaAvg = output.getGuavaResult().averageRepetitionTime(NANOSECONDS);
-            final float cherryImprovement = 100 - ((cherryAvg / guavaAvg) * 100);
+            final float cherry = output.getCherryResult().fastestRunTime(NANOSECONDS);
+            final float guava = output.getGuavaResult().fastestRunTime(NANOSECONDS);
+            final float cherryPercentageChange = ((guava - cherry) / cherry) * 100;
 
-            return String.format("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryImprovement);
+            return String.format("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryPercentageChange);
         }
     }
 }

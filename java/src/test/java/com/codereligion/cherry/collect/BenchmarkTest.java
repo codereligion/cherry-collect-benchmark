@@ -29,10 +29,13 @@ public class BenchmarkTest {
     private final Action1<Output> printOutput = new Action1<Output>() {
         @Override
         public void call(final Output output) {
-            final float cherryAvg = output.getCherryResult().averageRepetitionTime(NANOSECONDS);
-            final float guavaAvg = output.getGuavaResult().averageRepetitionTime(NANOSECONDS);
-            final float cherryImprovement = 100 - ((cherryAvg / guavaAvg) * 100);
-            System.out.printf("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryImprovement);
+
+            final float cherry = output.getCherryResult().fastestRunTime(NANOSECONDS);
+            final float guava = output.getGuavaResult().fastestRunTime(NANOSECONDS);
+            final float cherryPercentageChange = ((guava - cherry) / cherry) * 100;
+
+            System.out.printf("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryPercentageChange);
+            System.out.println();
         }
     };
 
