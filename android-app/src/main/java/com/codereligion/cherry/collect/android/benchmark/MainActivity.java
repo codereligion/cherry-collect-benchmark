@@ -10,13 +10,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import com.codereligion.cherry.benchmark.Input;
 import com.codereligion.cherry.benchmark.Output;
+import com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMark;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.warmUp;
-import static com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory.createListFilteringAndTransformingBenchmarkInput;
-import static com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory.createListFilteringBenchmarkInput;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
 
@@ -112,11 +113,15 @@ public class MainActivity extends ActionBarActivity {
 
         switch (item.getItemId()) {
             case R.id.filterToArrayList: {
-                inputObservable = createListFilteringBenchmarkInput();
+                inputObservable = ListFilteringBenchmarkInputFactory.create();
                 break;
             }
             case R.id.filterAndTransformToArrayList: {
-                inputObservable = createListFilteringAndTransformingBenchmarkInput();
+                inputObservable = ListFilteringAndTransformationBenchmarkInputFactory.create();
+                break;
+            }
+            case R.id.transformToMap: {
+                inputObservable = ListToImmutableMapBenchmarkInputFactory.create();
                 break;
             }
             case R.id.shareResults: {

@@ -1,15 +1,5 @@
 apply plugin: 'java'
 
-repositories {
-    jcenter {
-        url "http://jcenter.bintray.com/"
-    }
-    maven  {
-        url "http://repo1.maven.org/maven2"
-    }
-    mavenLocal()
-}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.codereligion:codereligion-cherry-collect:0.1.0-SNAPSHOT'

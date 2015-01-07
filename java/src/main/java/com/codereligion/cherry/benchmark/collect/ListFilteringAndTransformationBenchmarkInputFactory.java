@@ -39,7 +39,7 @@ public class ListFilteringAndTransformationBenchmarkInputFactory {
     };
     private static final Function<Object, String> FUNCTION = Functions.toStringFunction();
 
-    public static Observable<Input> createListFilteringAndTransformingBenchmarkInput() {
+    public static Observable<Input> create() {
 
         return Observable.create(new Observable.OnSubscribe<Input>() {
             @Override

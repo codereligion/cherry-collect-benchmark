@@ -59,6 +59,7 @@ public class BenchmarkRunner {
 
                 for (long reps = 0; reps < repetitions; reps++) {
 
+                    System.gc();
                     stopwatch.start();
                     checkInt |= contestant.run();
                     stopwatch.stop();

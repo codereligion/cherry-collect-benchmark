@@ -17,24 +17,17 @@ package com.codereligion.cherry.benchmark.collect;
 
 import com.codereligion.cherry.benchmark.Contestant;
 import com.codereligion.cherry.benchmark.Input;
-import com.codereligion.cherry.collect.ArrayLists;
-import com.google.common.base.Predicate;
+import com.codereligion.cherry.collect.HashMaps;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.List;
 import rx.Observable;
 import rx.Subscriber;
+import static com.google.common.base.Functions.toStringFunction;
 
-public class ListFilteringBenchmarkInputFactory {
+public class ListToImmutableMapBenchmarkInputFactory {
 
     private static final long REPETITIONS = 40;
-    private static final Predicate<Long> IS_EVEN = new Predicate<Long>() {
-        @Override
-        public boolean apply(final Long input) {
-            return input % 2 == 0;
-        }
-    };
 
     public static Observable<Input> create() {
 
@@ -50,7 +43,7 @@ public class ListFilteringBenchmarkInputFactory {
                     }
 
                     final long numElements = (long) Math.pow(2, p);
-                    final List<Long> iterable = createLongsUntil(numElements);
+                    final Iterable<Long> iterable = createLongsUntil(numElements);
 
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(new Input().withOperation("filter")
@@ -68,7 +61,7 @@ public class ListFilteringBenchmarkInputFactory {
         });
     }
 
-    private static List<Long> createLongsUntil(final long limit) {
+    private static Iterable<Long> createLongsUntil(final long limit) {
         final List<Long> list = Lists.newArrayList();
 
         for (long i = 0; i < limit; i++) {
@@ -93,15 +86,15 @@ public class ListFilteringBenchmarkInputFactory {
 
         @Override
         public int run() {
-            return ArrayLists.from(iterable, IS_EVEN).size();
+            return HashMaps.from(iterable, toStringFunction()).size();
         }
     }
 
     private static class FluentIterableInput implements Contestant {
 
-        private final List<Long> iterable;
+        private final Iterable<Long> iterable;
 
-        public FluentIterableInput(final List<Long> iterable) {
+        public FluentIterableInput(final Iterable<Long> iterable) {
             this.iterable = iterable;
         }
 
@@ -112,7 +105,7 @@ public class ListFilteringBenchmarkInputFactory {
 
         @Override
         public int run() {
-            return FluentIterable.from(iterable).filter(IS_EVEN).copyInto(new ArrayList<Long>()).size();
+            return FluentIterable.from(iterable).uniqueIndex(toStringFunction()).size();
         }
     }
 }

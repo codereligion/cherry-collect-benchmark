@@ -16,12 +16,13 @@
 package com.codereligion.cherry.collect;
 
 import com.codereligion.cherry.benchmark.Output;
+import com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
 import org.junit.Test;
 import rx.functions.Action1;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMark;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.warmUp;
-import static com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory.createListFilteringAndTransformingBenchmarkInput;
-import static com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory.createListFilteringBenchmarkInput;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class BenchmarkTest {
@@ -41,11 +42,16 @@ public class BenchmarkTest {
 
     @Test
     public void benchmarkFilterToArrayList() {
-        createListFilteringBenchmarkInput().concatMap(warmUp()).concatMap(benchMark()).subscribe(printOutput);
+        ListFilteringBenchmarkInputFactory.create().concatMap(warmUp()).concatMap(benchMark()).subscribe(printOutput);
     }
 
     @Test
     public void benchmarkFilterAndTransformToArrayList() {
-        createListFilteringAndTransformingBenchmarkInput().concatMap(warmUp()).concatMap(benchMark()).subscribe(printOutput);
+        ListFilteringAndTransformationBenchmarkInputFactory.create().concatMap(warmUp()).concatMap(benchMark()).subscribe(printOutput);
+    }
+
+    @Test
+    public void benchmarkListToImmutableMap() {
+        ListToImmutableMapBenchmarkInputFactory.create().concatMap(warmUp()).concatMap(benchMark()).subscribe(printOutput);
     }
 }
