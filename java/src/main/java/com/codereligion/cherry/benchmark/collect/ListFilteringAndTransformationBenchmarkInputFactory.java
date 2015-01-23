@@ -94,7 +94,7 @@ public class ListFilteringAndTransformationBenchmarkInputFactory {
 
         @Override
         public int run() {
-            return ArrayLists.from(iterable, PREDICATE, FUNCTION).size();
+            return ArrayLists.createFrom(iterable, PREDICATE, FUNCTION).size();
         }
     }
 

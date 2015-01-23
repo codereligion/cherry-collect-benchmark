@@ -86,7 +86,7 @@ public class ListToImmutableMapBenchmarkInputFactory {
 
         @Override
         public int run() {
-            return HashMaps.from(iterable, toStringFunction()).size();
+            return HashMaps.createFrom(iterable, toStringFunction()).size();
         }
     }
 

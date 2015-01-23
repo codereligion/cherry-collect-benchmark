@@ -93,7 +93,7 @@ public class ListFilteringBenchmarkInputFactory {
 
         @Override
         public int run() {
-            return ArrayLists.from(iterable, IS_EVEN).size();
+            return ArrayLists.createFrom(iterable, IS_EVEN).size();
         }
     }
 

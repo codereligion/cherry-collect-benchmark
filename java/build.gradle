@@ -1,7 +1,20 @@
 apply plugin: 'java'
+apply plugin: 'com.github.hierynomus.license'
+
+license {
+    header rootProject.file('LICENSE_HEADER.txt')
+    strictCheck true
+}
+
+compileJava {
+    options.compilerArgs = ['-proc:none', '-Werror', '-Xlint']
+}
+
+test {
+    systemProperty 'java.awt.headless', 'true'
+}
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.codereligion:codereligion-cherry-collect:0.1.0-SNAPSHOT'
     compile 'com.google.guava:guava:18.0'
     compile 'io.reactivex:rxjava:1.0.4'
