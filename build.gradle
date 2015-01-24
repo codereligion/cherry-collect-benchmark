@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        jcenter()
         mavenLocal()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.1'
@@ -12,8 +12,6 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
-        jcenter {
-            url 'http://jcenter.bintray.com/'
-        }
+        jcenter()
     }
 }
