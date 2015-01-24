@@ -1,4 +1,10 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.hierynomus.license'
+
+license {
+    header rootProject.file('LICENSE_HEADER.txt')
+    strictCheck true
+}
 
 android {
     compileSdkVersion 21
