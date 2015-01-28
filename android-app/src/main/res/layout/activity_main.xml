@@ -41,6 +41,11 @@
     </android.support.v7.widget.Toolbar>
 
     <fragment
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.codereligion.cherry.collect.android.benchmark.NavigationFragment"/>
+
+    <fragment
             android:id="@+id/result_list_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

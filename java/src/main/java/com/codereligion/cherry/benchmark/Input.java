@@ -21,7 +21,7 @@ public class Input {
     private Contestant guavaContestant;
     private String operation;
     private long numElements;
-    private long repetitions;
+    private int repetitions;
 
     public Input withCherryContestant(final Contestant contestant) {
         this.cherryContestant = contestant;
@@ -43,8 +43,8 @@ public class Input {
         return this;
     }
 
-    public Input withRepetitions(final long tepetitions) {
-        this.repetitions = tepetitions;
+    public Input withRepetitions(final int repetitions) {
+        this.repetitions = repetitions;
         return this;
     }
 
@@ -64,7 +64,7 @@ public class Input {
         return numElements;
     }
 
-    public long getRepetitions() {
+    public int getRepetitions() {
         return repetitions;
     }
 }

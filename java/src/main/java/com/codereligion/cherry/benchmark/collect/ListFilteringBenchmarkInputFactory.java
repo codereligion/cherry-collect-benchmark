@@ -28,7 +28,6 @@ import rx.Subscriber;
 
 public class ListFilteringBenchmarkInputFactory {
 
-    private static final long REPETITIONS = 40;
     private static final Predicate<Long> IS_EVEN = new Predicate<Long>() {
         @Override
         public boolean apply(final Long input) {
@@ -36,35 +35,27 @@ public class ListFilteringBenchmarkInputFactory {
         }
     };
 
-    public static Observable<Input> create() {
+    public static Observable<Input> create(final long numElements, final int numReps) {
 
         return Observable.create(new Observable.OnSubscribe<Input>() {
             @Override
             public void call(final Subscriber<? super Input> subscriber) {
 
-                final int powers = 20;
-                for (int p = 1; p <= powers; p++) {
+                final List<Long> iterable = createLongsUntil(numElements);
 
-                    if (subscriber.isUnsubscribed()) {
-                        return;
-                    }
-
-                    final long numElements = (long) Math.pow(2, p);
-                    final List<Long> iterable = createLongsUntil(numElements);
-
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(new Input().withOperation("filter")
-                                                     .withNumElements(numElements)
-                                                     .withRepetitions(REPETITIONS)
-                                                     .withCherryContestant(new ArrayListsInput(iterable))
-                                                     .withGuavaContestant(new FluentIterableInput(iterable)));
-                    }
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(new Input().withOperation("filter")
+                                                 .withNumElements(numElements)
+                                                 .withRepetitions(numReps)
+                                                 .withCherryContestant(new ArrayListsInput(iterable))
+                                                 .withGuavaContestant(new FluentIterableInput(iterable)));
                 }
 
                 if (!subscriber.isUnsubscribed()) {
                     subscriber.onCompleted();
                 }
             }
+
         });
     }
 

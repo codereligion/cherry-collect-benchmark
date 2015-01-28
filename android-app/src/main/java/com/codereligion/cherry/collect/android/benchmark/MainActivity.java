@@ -22,12 +22,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import com.codereligion.cherry.benchmark.Input;
 import com.codereligion.cherry.benchmark.Output;
 import com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
 import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
 import com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
+import com.google.common.collect.Lists;
+import java.util.List;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -39,6 +44,8 @@ import static rx.schedulers.Schedulers.newThread;
 
 public class MainActivity extends ActionBarActivity {
 
+    private Spinner numElementsSpinner;
+    private Spinner numRepsSpinner;
     private ProgressBar progressBar;
     private ResultListFragment resultListFragment;
     private Observable.Operator<Output, Output> progressObserver = new Observable.Operator<Output, Output>() {
@@ -82,20 +89,14 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        numElementsSpinner = (Spinner) findViewById(R.id.numElements);
+        numRepsSpinner = (Spinner) findViewById(R.id.numReps);
         progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
         resultListFragment = (ResultListFragment) getSupportFragmentManager().findFragmentById(R.id.result_list_fragment);
         recoverLastObservable();
+        setSpinnerAdapters();
     }
 
-    private void recoverLastObservable() {
-        observable = getLastCustomNonConfigurationInstance();
-        if (observable != null) {
-            observable.lift(progressObserver).subscribe();
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.INVISIBLE);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
@@ -128,15 +129,15 @@ public class MainActivity extends ActionBarActivity {
 
         switch (item.getItemId()) {
             case R.id.filterToArrayList: {
-                inputObservable = ListFilteringBenchmarkInputFactory.create();
+                inputObservable = ListFilteringBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
                 break;
             }
             case R.id.filterAndTransformToArrayList: {
-                inputObservable = ListFilteringAndTransformationBenchmarkInputFactory.create();
+                inputObservable = ListFilteringAndTransformationBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
                 break;
             }
             case R.id.transformToMap: {
-                inputObservable = ListToImmutableMapBenchmarkInputFactory.create();
+                inputObservable = ListToImmutableMapBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
                 break;
             }
             case R.id.shareResults: {
@@ -161,5 +162,39 @@ public class MainActivity extends ActionBarActivity {
         subscription = resultListFragment.outputResults(observable).subscribe();
 
         return true;
+    }
+
+    private void setSpinnerAdapters() {
+        final SpinnerAdapter numElementsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createNumElements());
+        numElementsSpinner.setAdapter(numElementsAdapter);
+
+        final SpinnerAdapter numRepsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createNumReps());
+        numRepsSpinner.setAdapter(numRepsAdapter);
+    }
+
+    private List<Long> createNumElements() {
+        return Lists.newArrayList(2L, 4L, 8L, 1024L);
+    }
+
+    private List<Integer> createNumReps() {
+        return Lists.newArrayList(1, 2, 5, 10, 20, 30, 40);
+    }
+
+    private void recoverLastObservable() {
+        observable = getLastCustomNonConfigurationInstance();
+        if (observable != null) {
+            observable.lift(progressObserver).subscribe();
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public long getNumElementsSpinner() {
+        return (long) numElementsSpinner.getSelectedItem();
+    }
+
+    public int getNumRepsSpinner() {
+        return (int) numRepsSpinner.getSelectedItem();
     }
 }

@@ -30,7 +30,6 @@ import rx.Subscriber;
 
 public class ListFilteringAndTransformationBenchmarkInputFactory {
 
-    private static final int REPETITIONS = 40;
     private static final Predicate<Long> PREDICATE = new Predicate<Long>() {
         @Override
         public boolean apply(final Long input) {
@@ -39,27 +38,19 @@ public class ListFilteringAndTransformationBenchmarkInputFactory {
     };
     private static final Function<Object, String> FUNCTION = Functions.toStringFunction();
 
-    public static Observable<Input> create() {
+    public static Observable<Input> create(final long numElements, final int numReps) {
 
         return Observable.create(new Observable.OnSubscribe<Input>() {
             @Override
             public void call(final Subscriber<? super Input> subscriber) {
-                final int powers = 20;
-                for (int p = 1; p <= powers; p++) {
+                final List<Long> iterable = createLongsUntil(numElements);
 
-                    if (subscriber.isUnsubscribed()) {
-                        return;
-                    }
-                    final long numElements = (long) Math.pow(2, p);
-                    final List<Long> iterable = createLongsUntil(numElements);
-
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(new Input().withOperation("filterAndTransform")
-                                                     .withNumElements(numElements)
-                                                     .withRepetitions(REPETITIONS)
-                                                     .withCherryContestant(new ArrayListsInput(iterable))
-                                                     .withGuavaContestant(new FluentIterableInput(iterable)));
-                    }
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(new Input().withOperation("filterAndTransform")
+                                                 .withNumElements(numElements)
+                                                 .withRepetitions(numReps)
+                                                 .withCherryContestant(new ArrayListsInput(iterable))
+                                                 .withGuavaContestant(new FluentIterableInput(iterable)));
                 }
 
                 if (!subscriber.isUnsubscribed()) {

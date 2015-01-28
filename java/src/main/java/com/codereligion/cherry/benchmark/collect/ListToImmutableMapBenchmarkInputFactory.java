@@ -27,37 +27,28 @@ import static com.google.common.base.Functions.toStringFunction;
 
 public class ListToImmutableMapBenchmarkInputFactory {
 
-    private static final long REPETITIONS = 40;
-
-    public static Observable<Input> create() {
+    public static Observable<Input> create(final long numElements, final int numReps) {
 
         return Observable.create(new Observable.OnSubscribe<Input>() {
             @Override
             public void call(final Subscriber<? super Input> subscriber) {
 
-                final int powers = 20;
-                for (int p = 1; p <= powers; p++) {
 
-                    if (subscriber.isUnsubscribed()) {
-                        return;
-                    }
+                final Iterable<Long> iterable = createLongsUntil(numElements);
 
-                    final long numElements = (long) Math.pow(2, p);
-                    final Iterable<Long> iterable = createLongsUntil(numElements);
-
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(new Input().withOperation("filter")
-                                                     .withNumElements(numElements)
-                                                     .withRepetitions(REPETITIONS)
-                                                     .withCherryContestant(new ArrayListsInput(iterable))
-                                                     .withGuavaContestant(new FluentIterableInput(iterable)));
-                    }
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(new Input().withOperation("filter")
+                                                 .withNumElements(numElements)
+                                                 .withRepetitions(numReps)
+                                                 .withCherryContestant(new ArrayListsInput(iterable))
+                                                 .withGuavaContestant(new FluentIterableInput(iterable)));
                 }
 
                 if (!subscriber.isUnsubscribed()) {
                     subscriber.onCompleted();
                 }
             }
+
         });
     }
 
