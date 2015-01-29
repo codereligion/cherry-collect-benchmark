@@ -20,11 +20,13 @@
 
     <string name="appName">Cherry Collect Benchmark</string>
     <string name="defaultText">go to the menu and select a fucking benchmark!</string>
-    <string name="transformToMap">transform to map</string>
+    <string name="transformToMapLabel">transform to map</string>
     <string name="filterToArrayListLabel">filter to ArrayList</string>
     <string name="filterAndTransformToArrayListLabel">filter and transform to ArrayList</string>
     <string name="shareResults">share results</string>
     <string name="numRepsLabel">reps</string>
     <string name="numElementsLabel">elements</string>
+    <string name="testLabel">testLabel</string>
+    <string name="runButtonLabel">run</string>
 
 </resources>

@@ -23,16 +23,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import com.codereligion.cherry.benchmark.Input;
 import com.codereligion.cherry.benchmark.Output;
 import com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
-import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
 import com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -45,8 +47,21 @@ import static rx.schedulers.Schedulers.newThread;
 public class MainActivity extends ActionBarActivity {
 
     private static final int DEFAULT_NUM_REPS = 20;
+    private static final int FILTER_TO_ARRAY_LIST_TEST = 0;
+    private static final int FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST = 1;
+    private static final int TRANSFORM_TO_MAP_TEST = 2;
+    private static final Map<Integer, Integer> TEST_ID_TO_LABEL_ID = Maps.newHashMap();
+
+    static {
+        TEST_ID_TO_LABEL_ID.put(FILTER_TO_ARRAY_LIST_TEST, R.string.filterToArrayListLabel);
+        TEST_ID_TO_LABEL_ID.put(FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST, R.string.filterAndTransformToArrayListLabel);
+        TEST_ID_TO_LABEL_ID.put(TRANSFORM_TO_MAP_TEST, R.string.transformToMapLabel);
+    }
+
     private Spinner numElementsSpinner;
     private Spinner numRepsSpinner;
+    private Spinner testsSpinner;
+    private Button runButton;
     private ProgressBar progressBar;
     private ResultListFragment resultListFragment;
     private Observable.Operator<Output, Output> progressObserver = new Observable.Operator<Output, Output>() {
@@ -90,14 +105,16 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        numElementsSpinner = (Spinner) findViewById(R.id.numElements);
-        numRepsSpinner = (Spinner) findViewById(R.id.numReps);
+        numElementsSpinner = (Spinner) findViewById(R.id.numElementsSpinner);
+        numRepsSpinner = (Spinner) findViewById(R.id.numRepsSpinner);
+        testsSpinner = (Spinner) findViewById(R.id.testSpinner);
+        runButton = (Button) findViewById(R.id.runButton);
         progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
         resultListFragment = (ResultListFragment) getSupportFragmentManager().findFragmentById(R.id.result_list_fragment);
-        recoverLastObservable();
         setSpinnerAdapters();
+        registerButtonListener();
+        recoverLastObservable();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
@@ -125,22 +142,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-
-        final Observable<Input> inputObservable;
-
         switch (item.getItemId()) {
-            case R.id.filterToArrayList: {
-                inputObservable = ListFilteringBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
-                break;
-            }
-            case R.id.filterAndTransformToArrayList: {
-                inputObservable = ListFilteringAndTransformationBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
-                break;
-            }
-            case R.id.transformToMap: {
-                inputObservable = ListToImmutableMapBenchmarkInputFactory.create(getNumElementsSpinner(), getNumRepsSpinner());
-                break;
-            }
             case R.id.shareResults: {
                 final Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
@@ -153,26 +155,32 @@ public class MainActivity extends ActionBarActivity {
                 throw new IllegalArgumentException("Item with id: " + item.getItemId() + " not supported.");
             }
         }
+    }
 
-        observable = inputObservable.subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMark()).observeOn(mainThread()).lift(progressObserver);
-
-        subscription = resultListFragment.outputResults(observable).subscribe();
-
-        return true;
+    private void registerButtonListener() {
+        runButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                observable = getTest().subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMark()).observeOn(mainThread()).lift(progressObserver);
+                subscription = resultListFragment.outputResults(observable).subscribe();
+            }
+        });
     }
 
     private void setSpinnerAdapters() {
-        final SpinnerAdapter numElementsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createNumElements());
-        numElementsSpinner.setAdapter(numElementsAdapter);
-        numElementsSpinner.setSelection(numElementsAdapter.getCount() - 1);
+        final List<Long> numElements = createNumElementsLabels();
+        numElementsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, numElements));
+        numElementsSpinner.setSelection(numElements.size() - 1);
 
-        final List<Integer> numReps = createNumReps();
-        final SpinnerAdapter numRepsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, numReps);
-        numRepsSpinner.setAdapter(numRepsAdapter);
+        final List<Integer> numReps = createNumRepsLabels();
+        numRepsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, numReps));
         numRepsSpinner.setSelection(numReps.indexOf(DEFAULT_NUM_REPS));
+
+        final List<TestItem> tests = createTestItems();
+        testsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tests));
     }
 
-    private List<Long> createNumElements() {
+    private List<Long> createNumElementsLabels() {
         final int maxPowers = 20;
 
         final List<Long> numElements = Lists.newArrayList();
@@ -183,8 +191,20 @@ public class MainActivity extends ActionBarActivity {
         return numElements;
     }
 
-    private List<Integer> createNumReps() {
+    private List<Integer> createNumRepsLabels() {
         return Lists.newArrayList(1, 2, 5, 10, 20, 30, 40);
+    }
+
+    private List<TestItem> createTestItems() {
+
+        final List<TestItem> labels = Lists.newArrayList();
+        for (final Map.Entry<Integer, Integer> entry : TEST_ID_TO_LABEL_ID.entrySet()) {
+            final Integer id = entry.getKey();
+            final String label = getString(entry.getValue());
+            labels.add(new TestItem(id, label));
+        }
+
+        return labels;
     }
 
     private void recoverLastObservable() {
@@ -197,11 +217,55 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public long getNumElementsSpinner() {
+    public Observable<Input> getTest() {
+
+        final TestItem selectedItem = (TestItem) testsSpinner.getSelectedItem();
+
+        switch (selectedItem.getId()) {
+
+            case FILTER_TO_ARRAY_LIST_TEST: {
+                return ListFilteringBenchmarkInputFactory.create(getNumElements(), getNumReps());
+            }
+            case FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST: {
+                return ListFilteringAndTransformationBenchmarkInputFactory.create(getNumElements(), getNumReps());
+            }
+            case TRANSFORM_TO_MAP_TEST: {
+                return ListToImmutableMapBenchmarkInputFactory.create(getNumElements(), getNumReps());
+            }
+            default: {
+                throw new IllegalStateException("Could not find test for: " + selectedItem.getLabel());
+            }
+        }
+    }
+
+    public long getNumElements() {
         return (long) numElementsSpinner.getSelectedItem();
     }
 
-    public int getNumRepsSpinner() {
+    public int getNumReps() {
         return (int) numRepsSpinner.getSelectedItem();
+    }
+
+    private static class TestItem {
+        private int id;
+        private String label;
+
+        private TestItem(final int id, final String label) {
+            this.id = id;
+            this.label = label;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 }

@@ -4,23 +4,39 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/numElementsLabel"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/numElementsLabel"/>
 
-        <Spinner
-                android:id="@+id/numElements"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+    <Spinner
+            android:id="@+id/numElementsSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/numRepsLabel"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/numRepsLabel"/>
 
-        <Spinner
-                android:id="@+id/numReps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+    <Spinner
+            android:id="@+id/numRepsSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/testLabel"/>
+
+    <Spinner
+            android:id="@+id/testSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <Button
+            android:id="@+id/runButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/runButtonLabel"/>
 </LinearLayout>

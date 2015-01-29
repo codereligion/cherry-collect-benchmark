@@ -55,7 +55,6 @@ public class ListFilteringBenchmarkInputFactory {
                     subscriber.onCompleted();
                 }
             }
-
         });
     }
 

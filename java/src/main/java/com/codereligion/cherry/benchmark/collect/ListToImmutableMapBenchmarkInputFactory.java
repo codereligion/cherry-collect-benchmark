@@ -48,7 +48,6 @@ public class ListToImmutableMapBenchmarkInputFactory {
                     subscriber.onCompleted();
                 }
             }
-
         });
     }
 

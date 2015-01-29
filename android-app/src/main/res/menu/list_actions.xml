@@ -20,24 +20,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-            android:id="@+id/transformToMap"
-            app:showAsAction="never"
-            android:icon="@drawable/ic_launcher"
-            android:title="@string/transformToMap"/>
-
-    <item
-            android:id="@+id/filterToArrayList"
-            app:showAsAction="never"
-            android:icon="@drawable/ic_launcher"
-            android:title="@string/filterToArrayListLabel"/>
-
-    <item
-            android:id="@+id/filterAndTransformToArrayList"
-            android:orderInCategory="100"
-            app:showAsAction="never"
-            android:title="@string/filterAndTransformToArrayListLabel"/>
-
-    <item
             android:id="@+id/shareResults"
             android:orderInCategory="100"
             app:showAsAction="never"
