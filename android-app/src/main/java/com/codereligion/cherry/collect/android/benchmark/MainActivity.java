@@ -44,6 +44,7 @@ import static rx.schedulers.Schedulers.newThread;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final int DEFAULT_NUM_REPS = 20;
     private Spinner numElementsSpinner;
     private Spinner numRepsSpinner;
     private ProgressBar progressBar;
@@ -153,11 +154,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
-        observable = inputObservable.subscribeOn(newThread())
-                                                       .concatMap(warmUp())
-                                                       .concatMap(benchMark())
-                                                       .observeOn(mainThread())
-                                                       .lift(progressObserver);
+        observable = inputObservable.subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMark()).observeOn(mainThread()).lift(progressObserver);
 
         subscription = resultListFragment.outputResults(observable).subscribe();
 
@@ -167,13 +164,23 @@ public class MainActivity extends ActionBarActivity {
     private void setSpinnerAdapters() {
         final SpinnerAdapter numElementsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createNumElements());
         numElementsSpinner.setAdapter(numElementsAdapter);
+        numElementsSpinner.setSelection(numElementsAdapter.getCount() - 1);
 
-        final SpinnerAdapter numRepsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createNumReps());
+        final List<Integer> numReps = createNumReps();
+        final SpinnerAdapter numRepsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, numReps);
         numRepsSpinner.setAdapter(numRepsAdapter);
+        numRepsSpinner.setSelection(numReps.indexOf(DEFAULT_NUM_REPS));
     }
 
     private List<Long> createNumElements() {
-        return Lists.newArrayList(2L, 4L, 8L, 1024L);
+        final int maxPowers = 20;
+
+        final List<Long> numElements = Lists.newArrayList();
+        for (int i = 1; i <= maxPowers; i++) {
+            numElements.add((long) Math.pow(2, i));
+        }
+
+        return numElements;
     }
 
     private List<Integer> createNumReps() {
