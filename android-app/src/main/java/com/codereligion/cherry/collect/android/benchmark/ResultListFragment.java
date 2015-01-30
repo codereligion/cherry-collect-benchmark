@@ -160,7 +160,7 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
             final float guava = output.getGuavaResult().fastestRunTime(NANOSECONDS);
             final float cherryPercentageChange = ((guava - cherry) / cherry) * 100;
 
-            return String.format("numElements: %s, cherry-improvement: %.2f%%", output.getNumElements(), cherryPercentageChange);
+            return String.format("cherry-improvement: %.2f%%", cherryPercentageChange);
         }
     }
 }
