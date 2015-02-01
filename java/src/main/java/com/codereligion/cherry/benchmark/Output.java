@@ -17,12 +17,7 @@ package com.codereligion.cherry.benchmark;
 
 public class Output {
 
-    public static Output from(final Input input) {
-        return new Output().withOperation(input.getOperation()).withNumElements(input.getNumElements());
-    }
-
-    private long numElements;
-    private String operation;
+    private Context context;
     private ContestantResult guavaContestant;
     private ContestantResult cherryContestant;
 
@@ -40,31 +35,22 @@ public class Output {
         return this;
     }
 
-
-    Output withOperation(final String operation) {
-        this.operation = operation;
+    Output withContext(final Context context) {
+        this.context = context;
         return this;
     }
 
-    Output withNumElements(final long numElements) {
-        this.numElements = numElements;
-        return this;
+    public Context context() {
+        return this.context;
     }
 
-    public ContestantResult getCherryResult() {
+    public ContestantResult cherryResult() {
         return cherryContestant;
     }
 
-    public ContestantResult getGuavaResult() {
+    public ContestantResult guavaResult() {
         return guavaContestant;
     }
 
-    public String getOperation() {
-        return operation;
-    }
-
-    public long getNumElements() {
-        return numElements;
-    }
 
 }

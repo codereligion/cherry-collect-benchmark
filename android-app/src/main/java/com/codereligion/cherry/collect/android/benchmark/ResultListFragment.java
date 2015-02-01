@@ -58,8 +58,8 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
             @Override
             public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
                 final Output output = adapter.getItem(position);
-                outputRunTimes(output.getCherryResult());
-                outputRunTimes(output.getGuavaResult());
+                outputRunTimes(output.cherryResult());
+                outputRunTimes(output.guavaResult());
                 return true;
             }
 
@@ -111,10 +111,10 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
         stringBuilder.append(getLineSeparator());
         for (int i = 0; i < adapter.getCount(); i++) {
             final Output output = adapter.getItem(i);
-            final ContestantResult cherryResult = output.getCherryResult();
-            final ContestantResult guavaResult = output.getGuavaResult();
+            final ContestantResult cherryResult = output.cherryResult();
+            final ContestantResult guavaResult = output.guavaResult();
 
-            stringBuilder.append(output.getNumElements());
+            stringBuilder.append(output.numElements());
             stringBuilder.append(",");
             stringBuilder.append(cherryResult.fastestRunTime(NANOSECONDS));
             stringBuilder.append(",");
@@ -156,8 +156,8 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
 
         private String format(final Output output) {
 
-            final float cherry = output.getCherryResult().fastestRunTime(NANOSECONDS);
-            final float guava = output.getGuavaResult().fastestRunTime(NANOSECONDS);
+            final float cherry = output.cherryResult().fastestRunTime(NANOSECONDS);
+            final float guava = output.guavaResult().fastestRunTime(NANOSECONDS);
             final float cherryPercentageChange = ((guava - cherry) / cherry) * 100;
 
             return String.format("cherry-improvement: %.2f%%", cherryPercentageChange);

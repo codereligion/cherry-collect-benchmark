@@ -22,42 +22,42 @@ import rx.functions.Func1;
 
 public class BenchmarkRunner {
 
-    public static Func1<Input, Observable<Input>> warmUp() {
-        return new Func1<Input, Observable<Input>>() {
+    public static Func1<Benchmark, Observable<Benchmark>> warmUp() {
+        return new Func1<Benchmark, Observable<Benchmark>>() {
 
             private boolean executed = false;
 
             @Override
-            public Observable<Input> call(final Input input) {
+            public Observable<Benchmark> call(final Benchmark benchmark) {
                 if (!executed) {
-                    System.out.println("warmUp check int cherry contestant:" + input.getCherryResult().run());
-                    System.out.println("warmUp check int guava contestant:" + input.getGuavaResult().run());
+                    System.out.println("warmUp check int cherry contestant:" + benchmark.cherryContestant().run());
+                    System.out.println("warmUp check int guava contestant:" + benchmark.guavaContestant().run());
                     executed = true;
                 }
-                return Observable.just(input);
+                return Observable.just(benchmark);
             }
         };
     }
 
-    public static Func1<Input, Observable<Output>> benchMark() {
-        return new Func1<Input, Observable<Output>>() {
+    public static Func1<Benchmark, Observable<Output>> benchMarkIterable() {
+        return new Func1<Benchmark, Observable<Output>>() {
             @Override
-            public Observable<Output> call(final Input input) {
-                final Output output = Output.from(input);
+            public Observable<Output> call(final Benchmark benchmark) {
+                final Output output = new Output().withContext(benchmark.context());
 
-                output.withGuavaContestant(benchMark(input.getRepetitions(), input.getGuavaResult()));
-                output.withCherryContestant(benchMark(input.getRepetitions(), input.getCherryResult()));
+                output.withCherryContestant(benchMark(benchmark.context().numReps(), benchmark.cherryContestant()));
+                output.withGuavaContestant(benchMark(benchmark.context().numReps(), benchmark.guavaContestant()));
 
                 return Observable.just(output);
             }
 
-            private ContestantResult benchMark(final long repetitions, final Contestant contestant) {
+            private ContestantResult benchMark(final long numReps, final Contestant contestant) {
 
                 int checkInt = 0;
                 final Stopwatch stopwatch = Stopwatch.createUnstarted();
                 final ContestantResult contestantResult = ContestantResult.from(contestant);
 
-                for (long reps = 0; reps < repetitions; reps++) {
+                for (long reps = 0; reps < numReps; reps++) {
 
                     System.gc();
                     stopwatch.start();

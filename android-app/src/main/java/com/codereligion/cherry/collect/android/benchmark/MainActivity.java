@@ -26,11 +26,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import com.codereligion.cherry.benchmark.Input;
+import com.codereligion.cherry.benchmark.FilterAndTransformToArrayListBenchmark;
+import com.codereligion.cherry.benchmark.ListToImmutableMapBenchmark;
 import com.codereligion.cherry.benchmark.Output;
-import com.codereligion.cherry.benchmark.collect.ListFilteringAndTransformationBenchmarkInputFactory;
-import com.codereligion.cherry.benchmark.collect.ListFilteringBenchmarkInputFactory;
-import com.codereligion.cherry.benchmark.collect.ListToImmutableMapBenchmarkInputFactory;
+import com.codereligion.cherry.benchmark.FilterToArrayList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
@@ -38,7 +37,7 @@ import java.util.Map;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMark;
+import static com.codereligion.cherry.benchmark.BenchmarkRunner.benchMarkIterable;
 import static com.codereligion.cherry.benchmark.BenchmarkRunner.warmUp;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
@@ -161,7 +160,7 @@ public class MainActivity extends ActionBarActivity {
         runButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                observable = getTest().subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMark()).observeOn(mainThread()).lift(progressObserver);
+                observable = getTest().subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMarkIterable()).observeOn(mainThread()).lift(progressObserver);
                 subscription = resultListFragment.outputResults(observable).subscribe();
             }
         });
@@ -224,13 +223,13 @@ public class MainActivity extends ActionBarActivity {
         switch (selectedItem.getId()) {
 
             case FILTER_TO_ARRAY_LIST_TEST: {
-                return ListFilteringBenchmarkInputFactory.create(getNumElements(), getNumReps());
+                return FilterToArrayList.create(getNumElements(), getNumReps());
             }
             case FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST: {
-                return ListFilteringAndTransformationBenchmarkInputFactory.create(getNumElements(), getNumReps());
+                return FilterAndTransformToArrayListBenchmark.create(getNumElements(), getNumReps());
             }
             case TRANSFORM_TO_MAP_TEST: {
-                return ListToImmutableMapBenchmarkInputFactory.create(getNumElements(), getNumReps());
+                return ListToImmutableMapBenchmark.create(getNumElements(), getNumReps());
             }
             default: {
                 throw new IllegalStateException("Could not find test for: " + selectedItem.getLabel());
