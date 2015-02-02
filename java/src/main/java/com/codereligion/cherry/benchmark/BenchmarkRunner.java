@@ -30,8 +30,8 @@ public class BenchmarkRunner {
             @Override
             public Observable<Benchmark> call(final Benchmark benchmark) {
                 if (!executed) {
-                    System.out.println("warmUp check int cherry contestant:" + benchmark.cherryContestant().run());
-                    System.out.println("warmUp check int guava contestant:" + benchmark.guavaContestant().run());
+                    System.out.println("warmUp check int:" + benchmark.cherryContestant().run());
+                    System.out.println("warmUp check int:" + benchmark.guavaContestant().run());
                     executed = true;
                 }
                 return Observable.just(benchmark);

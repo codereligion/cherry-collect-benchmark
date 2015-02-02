@@ -22,6 +22,7 @@ import com.codereligion.cherry.benchmark.FilterToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.IterableInputProvider;
 import com.codereligion.cherry.benchmark.ListToImmutableMapBenchmark;
 import com.codereligion.cherry.benchmark.Output;
+import com.codereligion.cherry.benchmark.TransformToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.input.provider.ArrayListInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.HashSetInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.LinkedListInputProvider;
@@ -66,6 +67,16 @@ public class BenchmarkTest {
             @Override
             public Benchmark call(final IterableInputProvider iterableInputProvider) {
                 return new FilterToArrayListBenchmark(iterableInputProvider, NUM_REPS);
+            }
+        });
+    }
+
+    @Test
+    public void benchmarkTransformToArrayList() {
+        run(new Callable<Benchmark>() {
+            @Override
+            public Benchmark call(final IterableInputProvider iterableInputProvider) {
+                return new TransformToArrayListBenchmark(iterableInputProvider, NUM_REPS);
             }
         });
     }

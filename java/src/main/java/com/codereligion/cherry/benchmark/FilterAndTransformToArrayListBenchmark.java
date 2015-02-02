@@ -17,10 +17,10 @@ package com.codereligion.cherry.benchmark;
 
 import com.codereligion.cherry.collect.ArrayLists;
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
+import javax.annotation.Nullable;
 
 public class FilterAndTransformToArrayListBenchmark implements Benchmark {
 
@@ -30,7 +30,12 @@ public class FilterAndTransformToArrayListBenchmark implements Benchmark {
             return input % 2 == 0;
         }
     };
-    private static final Function<Object, String> FUNCTION = Functions.toStringFunction();
+    private static final Function<Object, Integer> FUNCTION = new Function<Object, Integer>() {
+        @Override
+        public Integer apply(@Nullable final Object input) {
+            return input.hashCode();
+        }
+    };
 
     private Iterable<Long> iterable;
     private Context context;
@@ -59,7 +64,7 @@ public class FilterAndTransformToArrayListBenchmark implements Benchmark {
         return new GuavaContestant() {
             @Override
             public int run() {
-                return FluentIterable.from(iterable).filter(PREDICATE).transform(FUNCTION).copyInto(new ArrayList<String>()).size();
+                return FluentIterable.from(iterable).filter(PREDICATE).transform(FUNCTION).copyInto(new ArrayList<Integer>()).size();
             }
         };
     }
