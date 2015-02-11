@@ -1,6 +1,7 @@
 package com.codereligion.cherry.benchmark.input.provider;
 
 import com.codereligion.cherry.benchmark.IterableInputProvider;
+import com.google.common.collect.ComparisonChain;
 import java.util.Collection;
 
 public abstract class AbstractIterableInputProvider implements IterableInputProvider {
@@ -28,4 +29,12 @@ public abstract class AbstractIterableInputProvider implements IterableInputProv
     }
 
     protected abstract Collection<Long> collection();
+
+    @Override
+    public int compareTo(final IterableInputProvider other) {
+        return ComparisonChain.start()
+                              .compare(this.getClass().getSimpleName(), other.getClass().getSimpleName())
+                              .compare(this.numElements(), other.numElements())
+                              .result();
+    }
 }

@@ -1,6 +1,6 @@
 package com.codereligion.cherry.benchmark;
 
-public interface IterableInputProvider {
+public interface IterableInputProvider extends Comparable<IterableInputProvider> {
 
     Iterable<Long> get();
 

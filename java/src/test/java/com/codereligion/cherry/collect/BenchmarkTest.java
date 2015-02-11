@@ -27,6 +27,7 @@ import com.codereligion.cherry.benchmark.input.provider.ArrayListInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.HashSetInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.LinkedListInputProvider;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import rx.Observable;
@@ -40,6 +41,21 @@ public class BenchmarkTest {
 
     private static final int NUM_REPS = 40;
     private static final List<Long> NUM_ELEMENTS = Lists.newArrayList(1024L, 4096L, 8192L, 16384L, 32768L, 65536L, 131072L, 262144L, 524288L, 1048576L);
+    private static final List<IterableInputProvider> INPUT_PROVIDERS = createInputProviders();
+
+    private static List<IterableInputProvider> createInputProviders() {
+
+        final List<IterableInputProvider> all = Lists.newArrayList();
+        for (final Long numElements : NUM_ELEMENTS) {
+            all.add(new ArrayListInputProvider(numElements));
+            all.add(new LinkedListInputProvider(numElements));
+            all.add(new HashSetInputProvider(numElements));
+        }
+
+        Collections.sort(all);
+
+        return all;
+    }
 
     private final Action1<Output> printOutput = new Action1<Output>() {
         @Override
@@ -102,23 +118,15 @@ public class BenchmarkTest {
     }
 
     private void run(final Callable<Benchmark> callable) {
-        for (final Long numElements : NUM_ELEMENTS) {
-            for (final IterableInputProvider iterableInputProvider : getInputProviders(numElements)) {
-                Observable.create(new Observable.OnSubscribe<Benchmark>() {
-                    @Override
-                    public void call(final Subscriber<? super Benchmark> subscriber) {
-                        subscriber.onNext(callable.call(iterableInputProvider));
-                        subscriber.onCompleted();
-                    }
-                }).concatMap(warmUp()).concatMap(benchMarkIterable()).subscribe(printOutput);
-            }
+        for (final IterableInputProvider iterableInputProvider : INPUT_PROVIDERS) {
+            Observable.create(new Observable.OnSubscribe<Benchmark>() {
+                @Override
+                public void call(final Subscriber<? super Benchmark> subscriber) {
+                    subscriber.onNext(callable.call(iterableInputProvider));
+                    subscriber.onCompleted();
+                }
+            }).concatMap(warmUp()).concatMap(benchMarkIterable()).subscribe(printOutput);
         }
-    }
-
-    private List<IterableInputProvider> getInputProviders(final Long numElements) {
-        return Lists.<IterableInputProvider>newArrayList(new ArrayListInputProvider(numElements),
-                                                         new LinkedListInputProvider(numElements),
-                                                         new HashSetInputProvider(numElements));
     }
 
     private static interface Callable<T> {
