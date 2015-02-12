@@ -114,7 +114,7 @@ public class ResultListFragment extends android.support.v4.app.ListFragment {
             final ContestantResult cherryResult = output.cherryResult();
             final ContestantResult guavaResult = output.guavaResult();
 
-            stringBuilder.append(output.numElements());
+            stringBuilder.append(output.context().numElements());
             stringBuilder.append(",");
             stringBuilder.append(cherryResult.fastestRunTime(NANOSECONDS));
             stringBuilder.append(",");

@@ -26,10 +26,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import com.codereligion.cherry.benchmark.Benchmark;
 import com.codereligion.cherry.benchmark.FilterAndTransformToArrayListBenchmark;
+import com.codereligion.cherry.benchmark.FilterToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.ListToImmutableMapBenchmark;
 import com.codereligion.cherry.benchmark.Output;
-import com.codereligion.cherry.benchmark.FilterToArrayList;
+import com.codereligion.cherry.benchmark.input.provider.ArrayListInputProvider;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
@@ -43,6 +45,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
 
 
+// TODO make type of input configurable
 public class MainActivity extends ActionBarActivity {
 
     private static final int DEFAULT_NUM_REPS = 20;
@@ -160,7 +163,13 @@ public class MainActivity extends ActionBarActivity {
         runButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                observable = getTest().subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMarkIterable()).observeOn(mainThread()).lift(progressObserver);
+                observable = Observable.create(new Observable.OnSubscribe<Benchmark>() {
+                    @Override
+                    public void call(final Subscriber<? super Benchmark> subscriber) {
+                        subscriber.onNext(getTest());
+                        subscriber.onCompleted();
+                    }
+                }).subscribeOn(newThread()).concatMap(warmUp()).concatMap(benchMarkIterable()).observeOn(mainThread()).lift(progressObserver);
                 subscription = resultListFragment.outputResults(observable).subscribe();
             }
         });
@@ -216,20 +225,20 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public Observable<Input> getTest() {
+    public Benchmark getTest() {
 
         final TestItem selectedItem = (TestItem) testsSpinner.getSelectedItem();
 
         switch (selectedItem.getId()) {
 
             case FILTER_TO_ARRAY_LIST_TEST: {
-                return FilterToArrayList.create(getNumElements(), getNumReps());
+                return new FilterToArrayListBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
             }
             case FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST: {
-                return FilterAndTransformToArrayListBenchmark.create(getNumElements(), getNumReps());
+                return new FilterAndTransformToArrayListBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
             }
             case TRANSFORM_TO_MAP_TEST: {
-                return ListToImmutableMapBenchmark.create(getNumElements(), getNumReps());
+                return new ListToImmutableMapBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
             }
             default: {
                 throw new IllegalStateException("Could not find test for: " + selectedItem.getLabel());
