@@ -232,18 +232,22 @@ public class MainActivity extends ActionBarActivity {
         switch (selectedItem.getId()) {
 
             case FILTER_TO_ARRAY_LIST_TEST: {
-                return new FilterToArrayListBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
+                return new FilterToArrayListBenchmark(getInputProvider(), getNumReps());
             }
             case FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST: {
-                return new FilterAndTransformToArrayListBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
+                return new FilterAndTransformToArrayListBenchmark(getInputProvider(), getNumReps());
             }
             case TRANSFORM_TO_MAP_TEST: {
-                return new ListToImmutableMapBenchmark(new ArrayListInputProvider(getNumElements()), getNumReps());
+                return new ListToImmutableMapBenchmark(getInputProvider(), getNumReps());
             }
             default: {
                 throw new IllegalStateException("Could not find test for: " + selectedItem.getLabel());
             }
         }
+    }
+
+    private ArrayListInputProvider getInputProvider() {
+        return new ArrayListInputProvider(getNumElements());
     }
 
     public long getNumElements() {
