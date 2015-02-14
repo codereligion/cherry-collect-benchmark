@@ -32,5 +32,6 @@
     <string name="hashSet">HashSet</string>
     <string name="linkedList">LinkedList</string>
     <string name="arrayList">ArrayList</string>
+    <string name="transformLabel">transform</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.codereligion.cherry.collect.android.benchmark;
 enum Test {
 
     FILTER(R.string.filterLabel),
+    TRANSFORM(R.string.transformLabel),
     FILTER_AND_TRANSFORM(R.string.filterAndTransformLabel),
     TRANSFORM_TO_MAP(R.string.transformToMapLabel);
 

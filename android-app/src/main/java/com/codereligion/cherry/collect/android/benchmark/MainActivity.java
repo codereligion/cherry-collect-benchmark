@@ -34,6 +34,7 @@ import com.codereligion.cherry.benchmark.FilterToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.IterableInputProvider;
 import com.codereligion.cherry.benchmark.ListToImmutableMapBenchmark;
 import com.codereligion.cherry.benchmark.Output;
+import com.codereligion.cherry.benchmark.TransformToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.input.provider.ArrayListInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.HashSetInputProvider;
 import com.codereligion.cherry.benchmark.input.provider.LinkedListInputProvider;
@@ -195,7 +196,7 @@ public class MainActivity extends ActionBarActivity {
             numElements.add((long) Math.pow(2, i));
         }
 
-        return numElements;
+        return Lists.newArrayList(1000L, 10000L, 100000L, 1000000L);
     }
 
     private List<Integer> createNumRepsLabels() {
@@ -231,6 +232,9 @@ public class MainActivity extends ActionBarActivity {
             case FILTER: {
                 return new FilterToArrayListBenchmark(getInputProvider(), getNumReps());
             }
+            case TRANSFORM: {
+                return new TransformToArrayListBenchmark(getInputProvider(), getNumReps());
+            }
             case FILTER_AND_TRANSFORM: {
                 return new FilterAndTransformToArrayListBenchmark(getInputProvider(), getNumReps());
             }
@@ -244,7 +248,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private IterableInputProvider getInputProvider() {
-        final InputProviderItem selectedItem = (InputProviderItem) testsSpinner.getSelectedItem();
+        final InputProviderItem selectedItem = (InputProviderItem) inputProviderSpinner.getSelectedItem();
 
         switch (InputProvider.findByOrdinal(selectedItem.getId())) {
 
