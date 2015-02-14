@@ -16,16 +16,17 @@
 package com.codereligion.cherry.benchmark;
 
 import com.codereligion.cherry.collect.ArrayLists;
-import com.google.common.base.Predicate;
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
+import javax.annotation.Nullable;
 
 public class TransformToArrayListBenchmark implements Benchmark {
 
-    private static final Predicate<Long> IS_EVEN = new Predicate<Long>() {
+    private static final Function<Object, Integer> FUNCTION = new Function<Object, Integer>() {
         @Override
-        public boolean apply(final Long input) {
-            return input % 2 == 0;
+        public Integer apply(@Nullable final Object input) {
+            return input.hashCode();
         }
     };
 
@@ -46,7 +47,7 @@ public class TransformToArrayListBenchmark implements Benchmark {
         return new CherryContestant() {
             @Override
             public int run() {
-                return ArrayLists.createFrom(iterable, IS_EVEN).size();
+                return ArrayLists.createFrom(iterable, FUNCTION).size();
             }
         };
     }
@@ -56,7 +57,7 @@ public class TransformToArrayListBenchmark implements Benchmark {
         return new GuavaContestant() {
             @Override
             public int run() {
-                return FluentIterable.from(iterable).filter(IS_EVEN).copyInto(new ArrayList<Long>()).size();
+                return FluentIterable.from(iterable).transform(FUNCTION).copyInto(new ArrayList<Integer>()).size();
             }
         };
     }
