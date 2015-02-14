@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.google.guava:guava:18.0'
     compile 'io.reactivex:rxandroid:0.23.0'
+    compile 'com.jakewharton:butterknife:6.1.0'
 }

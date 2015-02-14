@@ -26,16 +26,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.codereligion.cherry.benchmark.Benchmark;
 import com.codereligion.cherry.benchmark.FilterAndTransformToArrayListBenchmark;
 import com.codereligion.cherry.benchmark.FilterToArrayListBenchmark;
+import com.codereligion.cherry.benchmark.IterableInputProvider;
 import com.codereligion.cherry.benchmark.ListToImmutableMapBenchmark;
 import com.codereligion.cherry.benchmark.Output;
 import com.codereligion.cherry.benchmark.input.provider.ArrayListInputProvider;
+import com.codereligion.cherry.benchmark.input.provider.HashSetInputProvider;
+import com.codereligion.cherry.benchmark.input.provider.LinkedListInputProvider;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.List;
-import java.util.Map;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -44,27 +47,17 @@ import static com.codereligion.cherry.benchmark.BenchmarkRunner.warmUp;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import static rx.schedulers.Schedulers.newThread;
 
-
-// TODO make type of input configurable
 public class MainActivity extends ActionBarActivity {
 
     private static final int DEFAULT_NUM_REPS = 20;
-    private static final int FILTER_TO_ARRAY_LIST_TEST = 0;
-    private static final int FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST = 1;
-    private static final int TRANSFORM_TO_MAP_TEST = 2;
-    private static final Map<Integer, Integer> TEST_ID_TO_LABEL_ID = Maps.newHashMap();
 
-    static {
-        TEST_ID_TO_LABEL_ID.put(FILTER_TO_ARRAY_LIST_TEST, R.string.filterToArrayListLabel);
-        TEST_ID_TO_LABEL_ID.put(FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST, R.string.filterAndTransformToArrayListLabel);
-        TEST_ID_TO_LABEL_ID.put(TRANSFORM_TO_MAP_TEST, R.string.transformToMapLabel);
-    }
+    @InjectView(R.id.numElementsSpinner) Spinner numElementsSpinner;
+    @InjectView(R.id.numRepsSpinner) Spinner numRepsSpinner;
+    @InjectView(R.id.inputProviderSpinner) Spinner inputProviderSpinner;
+    @InjectView(R.id.testSpinner) Spinner testsSpinner;
+    @InjectView(R.id.runButton) Button runButton;
+    @InjectView(R.id.progress_spinner) ProgressBar progressBar;
 
-    private Spinner numElementsSpinner;
-    private Spinner numRepsSpinner;
-    private Spinner testsSpinner;
-    private Button runButton;
-    private ProgressBar progressBar;
     private ResultListFragment resultListFragment;
     private Observable.Operator<Output, Output> progressObserver = new Observable.Operator<Output, Output>() {
         @Override
@@ -107,12 +100,8 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        numElementsSpinner = (Spinner) findViewById(R.id.numElementsSpinner);
-        numRepsSpinner = (Spinner) findViewById(R.id.numRepsSpinner);
-        testsSpinner = (Spinner) findViewById(R.id.testSpinner);
-        runButton = (Button) findViewById(R.id.runButton);
-        progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
         resultListFragment = (ResultListFragment) getSupportFragmentManager().findFragmentById(R.id.result_list_fragment);
+        ButterKnife.inject(this);
         setSpinnerAdapters();
         registerButtonListener();
         recoverLastObservable();
@@ -184,8 +173,18 @@ public class MainActivity extends ActionBarActivity {
         numRepsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, numReps));
         numRepsSpinner.setSelection(numReps.indexOf(DEFAULT_NUM_REPS));
 
-        final List<TestItem> tests = createTestItems();
-        testsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tests));
+        inputProviderSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createInputItems()));
+        testsSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, createTestItems()));
+    }
+
+    private List<InputProviderItem> createInputItems() {
+        final List<InputProviderItem> inputProviderItems = Lists.newArrayList();
+        for (final InputProvider inputProvider : InputProvider.values()) {
+            final Integer id = inputProvider.ordinal();
+            final String label = getString(inputProvider.getStringId());
+            inputProviderItems.add(new InputProviderItem(id, label));
+        }
+        return inputProviderItems;
     }
 
     private List<Long> createNumElementsLabels() {
@@ -204,15 +203,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private List<TestItem> createTestItems() {
-
-        final List<TestItem> labels = Lists.newArrayList();
-        for (final Map.Entry<Integer, Integer> entry : TEST_ID_TO_LABEL_ID.entrySet()) {
-            final Integer id = entry.getKey();
-            final String label = getString(entry.getValue());
-            labels.add(new TestItem(id, label));
+        final List<TestItem> testItems = Lists.newArrayList();
+        for (final Test test : Test.values()) {
+            final Integer id = test.ordinal();
+            final String label = getString(test.getStringId());
+            testItems.add(new TestItem(id, label));
         }
-
-        return labels;
+        return testItems;
     }
 
     private void recoverLastObservable() {
@@ -229,15 +226,15 @@ public class MainActivity extends ActionBarActivity {
 
         final TestItem selectedItem = (TestItem) testsSpinner.getSelectedItem();
 
-        switch (selectedItem.getId()) {
+        switch (Test.findByOrdinal(selectedItem.getId())) {
 
-            case FILTER_TO_ARRAY_LIST_TEST: {
+            case FILTER: {
                 return new FilterToArrayListBenchmark(getInputProvider(), getNumReps());
             }
-            case FILTER_AND_TRANSFORM_TO_ARRAY_LIST_TEST: {
+            case FILTER_AND_TRANSFORM: {
                 return new FilterAndTransformToArrayListBenchmark(getInputProvider(), getNumReps());
             }
-            case TRANSFORM_TO_MAP_TEST: {
+            case TRANSFORM_TO_MAP: {
                 return new ListToImmutableMapBenchmark(getInputProvider(), getNumReps());
             }
             default: {
@@ -246,8 +243,24 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private ArrayListInputProvider getInputProvider() {
-        return new ArrayListInputProvider(getNumElements());
+    private IterableInputProvider getInputProvider() {
+        final InputProviderItem selectedItem = (InputProviderItem) testsSpinner.getSelectedItem();
+
+        switch (InputProvider.findByOrdinal(selectedItem.getId())) {
+
+            case ARRAY_LIST: {
+                return new ArrayListInputProvider(getNumElements());
+            }
+            case LINKED_LIST: {
+                return new LinkedListInputProvider(getNumElements());
+            }
+            case HASH_SET: {
+                return new HashSetInputProvider(getNumElements());
+            }
+            default: {
+                throw new IllegalStateException("Could not find test for: " + selectedItem.getLabel());
+            }
+        }
     }
 
     public long getNumElements() {
@@ -258,11 +271,23 @@ public class MainActivity extends ActionBarActivity {
         return (int) numRepsSpinner.getSelectedItem();
     }
 
-    private static class TestItem {
+    private static class TestItem extends Item {
+        private TestItem(final int id, final String label) {
+            super(id, label);
+        }
+    }
+
+    private static class InputProviderItem extends Item {
+        private InputProviderItem(final int id, final String label) {
+            super(id, label);
+        }
+    }
+
+    private static class Item {
         private int id;
         private String label;
 
-        private TestItem(final int id, final String label) {
+        private Item(final int id, final String label) {
             this.id = id;
             this.label = label;
         }
