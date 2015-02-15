@@ -40,7 +40,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public class BenchmarkTest {
 
     private static final int NUM_REPS = 40;
-    private static final List<Long> NUM_ELEMENTS = Lists.newArrayList(1024L, 4096L, 8192L, 16384L, 32768L, 65536L, 131072L, 262144L, 524288L, 1048576L);
+    private static final List<Long> NUM_ELEMENTS = Lists.newArrayList(1000L, 10000L, 100000L, 1000000L);
     private static final List<IterableInputProvider> INPUT_PROVIDERS = createInputProviders();
 
     private static List<IterableInputProvider> createInputProviders() {

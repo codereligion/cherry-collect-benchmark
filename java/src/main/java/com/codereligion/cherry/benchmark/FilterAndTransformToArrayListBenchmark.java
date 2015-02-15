@@ -18,22 +18,18 @@ package com.codereligion.cherry.benchmark;
 import com.codereligion.cherry.collect.ArrayLists;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 public class FilterAndTransformToArrayListBenchmark implements Benchmark {
 
-    private static final Predicate<Long> PREDICATE = new Predicate<Long>() {
+    private static final Predicate<Long> PREDICATE = Predicates.alwaysTrue();
+    private static final Function<Long, Long> FUNCTION = new Function<Long, Long>() {
         @Override
-        public boolean apply(final Long input) {
-            return input % 2 == 0;
-        }
-    };
-    private static final Function<Object, Integer> FUNCTION = new Function<Object, Integer>() {
-        @Override
-        public Integer apply(@Nullable final Object input) {
-            return input.hashCode();
+        public Long apply(@Nullable final Long input) {
+            return input;
         }
     };
 
@@ -64,7 +60,7 @@ public class FilterAndTransformToArrayListBenchmark implements Benchmark {
         return new GuavaContestant() {
             @Override
             public int run() {
-                return FluentIterable.from(iterable).filter(PREDICATE).transform(FUNCTION).copyInto(new ArrayList<Integer>()).size();
+                return FluentIterable.from(iterable).filter(PREDICATE).transform(FUNCTION).copyInto(new ArrayList<Long>()).size();
             }
         };
     }

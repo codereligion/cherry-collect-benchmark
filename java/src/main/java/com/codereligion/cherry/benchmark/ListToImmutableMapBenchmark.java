@@ -16,11 +16,19 @@
 package com.codereligion.cherry.benchmark;
 
 import com.codereligion.cherry.collect.ImmutableMaps;
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import java.util.ArrayList;
-import static com.google.common.base.Functions.toStringFunction;
+import com.google.common.collect.ImmutableMap;
+import javax.annotation.Nullable;
 
 public class ListToImmutableMapBenchmark implements Benchmark {
+
+    private static final Function<Long, Long> FUNCTION = new Function<Long, Long>() {
+        @Override
+        public Long apply(@Nullable final Long input) {
+            return input;
+        }
+    };
 
     private Iterable<Long> iterable;
     private Context context;
@@ -28,7 +36,7 @@ public class ListToImmutableMapBenchmark implements Benchmark {
     public ListToImmutableMapBenchmark(final IterableInputProvider iterableInputProvider, final int numReps) {
         this.iterable = iterableInputProvider.get();
         this.context = new Context().withInputType(iterable.getClass())
-                                    .withOutputType(ArrayList.class)
+                                    .withOutputType(ImmutableMap.class)
                                     .withNumElements(iterableInputProvider.numElements())
                                     .withNumReps(numReps)
                                     .withOperation("filter");
@@ -39,7 +47,7 @@ public class ListToImmutableMapBenchmark implements Benchmark {
         return new CherryContestant() {
             @Override
             public int run() {
-                return ImmutableMaps.createFrom(iterable, toStringFunction()).size();
+                return ImmutableMaps.createFrom(iterable, FUNCTION).size();
             }
         };
     }
@@ -49,7 +57,7 @@ public class ListToImmutableMapBenchmark implements Benchmark {
         return new GuavaContestant() {
             @Override
             public int run() {
-                return FluentIterable.from(iterable).uniqueIndex(toStringFunction()).size();
+                return FluentIterable.from(iterable).uniqueIndex(FUNCTION).size();
             }
         };
     }

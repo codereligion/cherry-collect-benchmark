@@ -23,10 +23,10 @@ import javax.annotation.Nullable;
 
 public class TransformToArrayListBenchmark implements Benchmark {
 
-    private static final Function<Object, Integer> FUNCTION = new Function<Object, Integer>() {
+    private static final Function<Long, Long> FUNCTION = new Function<Long, Long>() {
         @Override
-        public Integer apply(@Nullable final Object input) {
-            return input.hashCode();
+        public Long apply(@Nullable final Long input) {
+            return input;
         }
     };
 
@@ -57,7 +57,7 @@ public class TransformToArrayListBenchmark implements Benchmark {
         return new GuavaContestant() {
             @Override
             public int run() {
-                return FluentIterable.from(iterable).transform(FUNCTION).copyInto(new ArrayList<Integer>()).size();
+                return FluentIterable.from(iterable).transform(FUNCTION).copyInto(new ArrayList<Long>()).size();
             }
         };
     }
